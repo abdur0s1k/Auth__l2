@@ -40,21 +40,46 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // Обновление данных в объекте пользователя
-        user.nickname = newNickname;
-        user.email = newEmail;
-        user.password = newPassword;
+        // Создание объекта для отправки на сервер
+        const updatedUser = {
+            login: user.login, // Логин остается без изменений
+            nickname: newNickname,
+            email: newEmail,
+            password: newPassword
+        };
 
-        // Сохранение обновленных данных в localStorage
-        localStorage.setItem('currentUser', JSON.stringify(user));
+        // Отправка обновленных данных на сервер
+        fetch('/user/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedUser)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Обновление данных на клиенте и в localStorage
+                user.nickname = newNickname;
+                user.email = newEmail;
+                user.password = newPassword; // Это небезопасно, не сохраняйте пароль в localStorage
+                localStorage.setItem('currentUser', JSON.stringify(user));
 
-        // Обновление информации на странице
-        document.getElementById('user-nickname').textContent = newNickname;
-        document.getElementById('user-email').textContent = newEmail;
+                // Обновление информации на странице
+                document.getElementById('user-nickname').textContent = newNickname;
+                document.getElementById('user-email').textContent = newEmail;
 
-        // Скрытие формы редактирования
-        document.querySelector('.edit-form').style.display = 'none';
-        alert("Изменения сохранены.");
+                // Скрытие формы редактирования
+                document.querySelector('.edit-form').style.display = 'none';
+                alert("Изменения сохранены.");
+            } else {
+                alert(data.message || "Произошла ошибка при обновлении данных.");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("Произошла ошибка при отправке данных на сервер.");
+        });
     });
 
     // Обработчик отмены изменений

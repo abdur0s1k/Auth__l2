@@ -35,28 +35,43 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // Проверка логина и пароля (эмуляция, в реальном приложении будет запрос к серверу)
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        const user = users.find(user => user.login === login);
+        // Отправка запроса на сервер для проверки логина и пароля
+        fetch("/auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                login: login,
+                password: password
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Успешный вход
+                if (rememberMe) {
+                    localStorage.setItem('rememberMe', 'true');
+                    localStorage.setItem('login', login);
+                    localStorage.setItem('password', password);
+                } else {
+                    localStorage.removeItem('rememberMe');
+                    localStorage.removeItem('login');
+                    localStorage.removeItem('password');
+                }
 
-        if (!user || user.password !== password) {
-            showError("Неверно введен логин и/или пароль.");
-            return;
-        }
+                // Сохранение токена и переход на главную страницу
+                localStorage.setItem('auth_token', data.token);  // Предположим, сервер возвращает токен
 
-        // Если поле "Запомнить меня" отмечено, сохраняем данные
-        if (rememberMe) {
-            localStorage.setItem('rememberMe', 'true');
-            localStorage.setItem('login', login);
-            localStorage.setItem('password', password);
-        } else {
-            localStorage.removeItem('rememberMe');
-            localStorage.removeItem('login');
-            localStorage.removeItem('password');
-        }
-
-        // Успешный вход (переход на другую страницу, например, на главную)
-        window.location.href = "home.html"; // Переход на страницу "Главная" или другую
+                window.location.href = "home.html"; // Переход на страницу "Главная"
+            } else {
+                showError("Неверно введен логин и/или пароль.");
+            }
+        })
+        .catch(error => {
+            console.error("Error during login:", error);
+            showError("Произошла ошибка при входе.");
+        });
     });
 
     // Функция для отображения ошибок

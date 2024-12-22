@@ -1,19 +1,28 @@
-from flask import Flask, request, jsonify, flash
+from flask import Flask, request, jsonify, flash, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import random
 import string
+import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/db.sqlite3'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:/path/to/your/database/db.sqlite3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+db_dir = os.path.dirname(app.config['SQLALCHEMY_DATABASE_URI'][10:])
+if not os.path.exists(db_dir):
+    os.makedirs(db_dir)
 
 login_manager = LoginManager(app)
-login_manager.login_view = "login"
+login_manager.login_view = "login"  # Обеспечивает редирект на страницу входа, если не авторизован
+
+# Функция user_loader для Flask-Login
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 # Модель пользователя
 class User(db.Model):
@@ -39,12 +48,20 @@ def generate_random_password(length=16):
     characters = string.ascii_letters + string.digits + string.punctuation
     return ''.join(random.choice(characters) for i in range(length))
 
-# Авторизация и регистрация
+
+@app.route('/')
+def home():
+    if current_user.is_authenticated:
+        return redirect(url_for('profile'))  # Перенаправить на личный кабинет, если пользователь авторизован
+    return redirect(url_for('login'))  # Перенаправить на страницу логина, если пользователь не авторизован
+
+# Регистрация
 @app.route('/auth/register', methods=['POST'])
 def register():
     login = request.form['login']
     password = request.form['password']
     confirm_password = request.form['confirm_password']
+    email = request.form.get('email')
     
     # Проверка на пробелы в логине и пароле
     if " " in login or " " in password or " " in confirm_password:
@@ -54,15 +71,18 @@ def register():
     if password != confirm_password:
         return jsonify({"success": False, "message": "Пароли не совпадают."}), 400
 
-    user = User.query.filter_by(login=login).first()
-    if user:
+    # Проверка уникальности логина и email
+    if User.query.filter_by(login=login).first():
         return jsonify({"success": False, "message": "Пользователь с таким логином уже существует."}), 400
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({"success": False, "message": "Пользователь с таким email уже существует."}), 400
 
     # Генерация случайного пароля если не введен
     if not password:
         password = generate_random_password()
 
-    new_user = User(login=login, email=request.form.get('email'), name=request.form.get('name'), 
+    new_user = User(login=login, email=email, name=request.form.get('name'), 
                     nickname=request.form.get('nickname'), phone=request.form.get('phone'), 
                     gender=request.form.get('gender'), avatar=request.form.get('avatar'))
     new_user.set_password(password)
@@ -71,6 +91,7 @@ def register():
     flash('Аккаунт создан', 'success')
     return jsonify({"success": True, "message": "Аккаунт создан успешно."})
 
+# Вход
 @app.route('/auth/login', methods=['POST'])
 def login():
     login = request.form['login']
@@ -83,6 +104,7 @@ def login():
     
     return jsonify({"success": False, "message": "Неверный логин или пароль."}), 401
 
+# Выход
 @app.route('/auth/logout', methods=['GET'])
 @login_required
 def logout():
@@ -104,21 +126,32 @@ def profile():
         "registration_date": current_user.registration_date
     })
 
+# Редактирование профиля
 @app.route('/user/edit_profile', methods=['POST'])
 @login_required
 def edit_profile():
-    current_user.name = request.form.get('name', current_user.name)
-    current_user.nickname = request.form.get('nickname', current_user.nickname)
-    current_user.phone = request.form.get('phone', current_user.phone)
-    current_user.gender = request.form.get('gender', current_user.gender)
-    current_user.avatar = request.form.get('avatar', current_user.avatar)
+    name = request.form.get('name')
+    nickname = request.form.get('nickname')
+    phone = request.form.get('phone')
+    gender = request.form.get('gender')
+    avatar = request.form.get('avatar')
+
+    if name:
+        current_user.name = name
+    if nickname:
+        current_user.nickname = nickname
+    if phone:
+        current_user.phone = phone
+    if gender:
+        current_user.gender = gender
+    if avatar:
+        current_user.avatar = avatar
+
     db.session.commit()
     return jsonify({"success": True, "message": "Данные обновлены."})
 
 # Инициализация базы данных
-@app.before_first_request
-def init_db():
-    db.create_all()
-
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()  # Инициализация базы данных
     app.run(debug=True)

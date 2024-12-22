@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('confirm-password').value = password;
     });
 
-    // Регистрация (например, просто выводим сообщение)
+    // Регистрация (отправка данных на сервер)
     document.getElementById('register-button').addEventListener('click', function () {
         const name = document.getElementById('name').value;
         const nickname = document.getElementById('nickname').value;
@@ -35,8 +35,42 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // Здесь можно добавить код для отправки данных на сервер
-        alert(`Регистрация успешна для ${name} (${nickname})!`);
+        // Валидация данных
+        if (!name || !nickname || !phone || !gender || !login || !password) {
+            alert("Заполните все поля.");
+            return;
+        }
+
+        // Отправка данных на сервер
+        const userData = {
+            name: name,
+            nickname: nickname,
+            phone: phone,
+            gender: gender,
+            login: login,
+            password: password
+        };
+
+        fetch('/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Регистрация успешна!");
+                window.location.href = 'login.html'; // Перенаправление на страницу входа
+            } else {
+                alert(data.message || "Произошла ошибка при регистрации.");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("Произошла ошибка при отправке данных на сервер.");
+        });
     });
 
     // Функция генерации случайного пароля
