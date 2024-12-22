@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="profile-container">
+        <h2>Профиль пользователя</h2>
+
+        <!-- Аватар пользователя -->
+        <div class="profile-group">
+            <label>Аватар</label>
+            <!-- Если у пользователя есть аватар, показываем его, иначе показываем дефолтное изображение -->
+            <img src="{{ url_for('static', filename='avatars/' + user.avatar) }}" alt="Аватар" class="profile-avatar">
+        </div>
+
+        <div class="profile-group">
+            <label>Имя</label>
+            <p>{{ user.fullname or 'Не указано' }}</p>
+        </div>
+        <div class="profile-group">
+            <label>Никнейм</label>
+            <p>{{ user.nickname or 'Не указано' }}</p>
+        </div>
+        <div class="profile-group">
+            <label>Телефон</label>
+            <p>{{ user.phone or 'Не указано' }}</p>
+        </div>
+        <div class="profile-group">
+            <label>Пол</label>
+            <p>{{ user.gender or 'Не указано' }}</p>
+        </div>
+        <div class="profile-group">
+            <label>Email</label>
+            <p>{{ user.email }}</p>
+        </div>
+        <div class="profile-group">
+            <label>Дата регистрации</label>
+            <p>{{ user.date_registered.strftime('%d.%m.%Y') }}</p>
+        </div>
+
+        <!-- Кнопка выхода -->
+        <div class="profile-group">
+            <button onclick="window.location.href='/logout'">Выйти</button>
+        </div>
+    </div>
+</body>
+</html>

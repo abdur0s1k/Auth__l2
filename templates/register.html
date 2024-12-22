@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="form-container">
+        <h2>Регистрация</h2>
+        <form id="registrationForm" method="POST" action="/register" enctype="multipart/form-data">
+            <!-- Логин -->
+            <div class="form-group">
+                <label for="username">Логин</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            
+            <!-- Пароль -->
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <input type="password" id="password" name="password" required>
+                <span class="show-password" onclick="togglePassword('password')">Показать</span>
+            </div>
+
+            <!-- Повторите пароль -->
+            <div class="form-group">
+                <label for="confirmPassword">Повторите пароль</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+                <span class="show-password" onclick="togglePassword('confirmPassword')">Показать</span>
+                <div id="passwordError" class="error"></div>
+            </div>
+
+            <!-- Имя -->
+            <div class="form-group">
+                <label for="fullname">Имя</label>
+                <input type="text" id="fullname" name="fullname" required>
+            </div>
+
+            <!-- Никнейм -->
+            <div class="form-group">
+                <label for="nickname">Никнейм</label>
+                <input type="text" id="nickname" name="nickname">
+            </div>
+<!-- Email -->
+<div class="form-group">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" required>
+</div>
+
+            <!-- Телефон -->
+            <div class="form-group">
+                <label for="phone">Телефон</label>
+                <input type="tel" id="phone" name="phone">
+            </div>
+
+            <!-- Пол -->
+            <div class="form-group">
+                <label for="gender">Пол</label>
+                <select id="gender" name="gender">
+                    <option value="male">Мужчина</option>
+                    <option value="female">Женщина</option>
+                    <option value="other">Другой</option>
+                </select>
+            </div>
+
+            <!-- Аватарка -->
+            <div class="form-group">
+                <label for="avatar">Аватарка</label>
+                <input type="file" id="avatar" name="avatar" accept="image/*">
+            </div>
+
+            <!-- Кнопка отправки -->
+            <div class="form-group">
+                <button type="submit">Зарегистрироваться</button>
+            </div>
+        </form>
+        
+        <div class="link">
+            <a href="{{ url_for('login') }}">Уже есть аккаунт? Войти</a>
+        </div>
+
+        <!-- Сообщения об ошибках или успехе -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <p class="flash-message">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <script>
+        function togglePassword(fieldId) {
+            var passwordField = document.getElementById(fieldId);
+            var type = passwordField.type === "password" ? "text" : "password";
+            passwordField.type = type;
+        }
+
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var password = document.getElementById('password').value;
+            var confirmPassword = document.getElementById('confirmPassword').value;
+            var error = document.getElementById('passwordError');
+            if (password !== confirmPassword) {
+                error.textContent = "Пароли не совпадают!";
+            } else {
+                error.textContent = "";
+                // Отправить данные формы на сервер
+                this.submit();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="form-container">
+        <h2>Вход в аккаунт</h2>
+        <!-- Форма входа -->
+        <form id="loginForm" method="POST" action="/login">
+            <!-- Логин -->
+            <div class="form-group">
+                <label for="username">Логин</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+
+            <!-- Пароль -->
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <input type="password" id="password" name="password" required>
+                <span class="show-password" onclick="togglePassword('password')">Показать</span>
+            </div>
+
+            <!-- Кнопка входа -->
+            <div class="form-group">
+                <button type="submit">Войти</button>
+            </div>
+        </form>
+
+        <!-- Ссылка на регистрацию -->
+        <div class="link">
+            <a href="{{ url_for('register') }}">Нет аккаунта? Зарегистрироваться</a>
+        </div>
+
+        <!-- Сообщения об ошибках или успехе -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <p class="flash-message">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <script>
+        // Функция для переключения видимости пароля
+        function togglePassword(fieldId) {
+            var passwordField = document.getElementById(fieldId);
+            var type = passwordField.type === "password" ? "text" : "password";
+            passwordField.type = type;
+        }
+    </script>
+</body>
+</html>
