@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <div class="profile-container">
+        <h2>Личный кабинет</h2>
+
+        <!-- Информация о пользователе -->
+        <div class="user-info">
+            <p><strong>Логин:</strong> <span id="user-login"></span></p>
+            <p><strong>Никнейм:</strong> <span id="user-nickname"></span></p>
+            <p><strong>Email:</strong> <span id="user-email"></span></p>
+            <p><strong>Дата регистрации:</strong> <span id="user-registration-date"></span></p>
+        </div>
+
+        <!-- Опциональные данные -->
+        <div class="user-options">
+            <button type="button" id="edit-profile-button">Редактировать профиль</button>
+        </div>
+
+        <!-- Форма для редактирования данных -->
+        <div class="edit-form" style="display:none;">
+            <h3>Редактировать профиль</h3>
+            <div class="form-group">
+                <label for="new-nickname">Никнейм</label>
+                <input type="text" id="new-nickname" placeholder="Введите новый никнейм">
+            </div>
+            <div class="form-group">
+                <label for="new-email">Email</label>
+                <input type="email" id="new-email" placeholder="Введите новый email">
+            </div>
+            <div class="form-group">
+                <label for="new-password">Пароль</label>
+                <input type="password" id="new-password" placeholder="Введите новый пароль">
+            </div>
+            <div class="form-group">
+                <button type="button" id="save-changes-button">Сохранить изменения</button>
+                <button type="button" id="cancel-changes-button">Отменить</button>
+            </div>
+        </div>
+
+        <!-- Кнопка выхода -->
+        <button type="button" id="logout-button">Выйти</button>
+    </div>
+    <script src="scripts/profile.js"></script>
+</body>
+</html>
